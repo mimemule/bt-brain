@@ -1,6 +1,8 @@
 # bt-brain
 
-A distributable **second-brain framework** for professional-services teams, built on Obsidian and Claude Code. One person authors the team's operating knowledge; everyone else receives it — and every future improvement — through `git pull`, while their own working notes are never touched.
+A **Regulated Agentic Knowledge Management (RAKM)** framework: a distributable second brain for teams whose notes carry liability, built on Obsidian and Claude Code. One person authors the team's operating knowledge; everyone else receives it — and every future improvement — through `git pull`, while their own working notes are never touched.
+
+**RAKM** (term coined by the author, 2026) names the class of knowledge system this implements: agent-operated knowledge management under *regulation* — verified facts with provenance and expiry, governed change instead of autonomous self-mutation, and possession-safe distribution. **AI-augmented RAKM** is the complete suite: the same governed knowledge base plus agent skills that generate tangible work product from it — deliverables that use and build on existing knowledge rather than starting cold.
 
 Author: **Bryan Tan** · MIT licensed.
 

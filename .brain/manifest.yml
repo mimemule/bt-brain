@@ -1,0 +1,27 @@
+# bt-brain — path classification manifest
+# Canonical rules: Brain/Governance.md §7. This file is the machine-readable form,
+# parsed by .brain/install.ps1 (gitignore generation) and .brain/update.ps1
+# (locked reset list, contributable staging list).
+# Classes: locked | contributable | scaffold | state
+# Anything not listed here is state by default (invisible to the engine).
+paths:
+  ".github":                        locked
+  ".brain":                         locked
+  ".claude/skills":                 locked
+  "Brain/README.md":                locked
+  "Brain/Instructions.md":          locked
+  "Brain/Standing_Instructions.md": locked
+  "Brain/Governance.md":            locked
+  "Brain/Workflows":                locked
+  "Brain/Playbooks":                locked
+  "Brain/Templates":                locked
+  "Brain/Products":                 contributable
+  "Brain/Research":                 contributable
+  "Brain/Firm.md":                  scaffold
+  "Brain/Decisions":                scaffold
+  "Brain/Now":                      state
+  "Brain/Clients":                  state
+  "Brain/Projects":                 state
+  "Brain/Sessions":                 state
+# scaffold note: Brain/<Name>.md is generated at install from
+# Brain/Templates/user-profile.md and is state thereafter.

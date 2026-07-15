@@ -25,9 +25,12 @@ Standing instructions that apply across all sessions. Lean by design — procedu
 
 ## Workflows — read the spec when triggered
 - New digest lands / the user asks to process one → [[Digest Processing]]
+- The user wants to keep a link/idea/article for later → [[Capture]] (nothing enters permanent tiers unprocessed)
+- Notable person encounter → dated entry in `Brain/People/<person>.md` (Person Template; link the client dossier)
 - The user returns from extended absence → [[Catch-Up Digest]]
 - "Run weekly review" → [[Weekly Review]]
-- "Run compliance check" / a `Products/` reference is stale or its horizon lapsed → [[Compliance Officer]]
+- "Run compliance check" / a `Products/` reference is stale → [[Compliance Officer]]
+- Scheduled, not user-triggered: [[Janitor]] (daily, mechanical) · [[Internal Audit]] (monthly, conformance)
 
 ## Playbook Capture
 - On milestone (engagement completed, deliverable issued, project closed) or "playbook this" → append a dated, attributed entry to the relevant playbook's **Insights** (append-only, newest first). If no playbook fits, propose one — don't force the wrong fit.

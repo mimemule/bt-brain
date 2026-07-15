@@ -21,6 +21,7 @@ Every category of fact has exactly one owner file. Everywhere else: link, don't 
 | Engagement know-how (procedure) | `Brain/Playbooks/` |
 | Reusable research findings | `Brain/Research/` — classified via `Research/_Index.md`; projects **cite**, never restate |
 | Domain reference facts | `Brain/Products/[domain].md` — provenance tags per `Products/_Index.md` |
+| Cross-client people (relationships, encounter history) | `Brain/People/[person].md` — encounters append-only; linked from dossiers, never restated in them |
 | Vault rules (this) | `Brain/Governance.md` |
 
 Index tables derived from frontmatter (e.g. via Dataview) cannot drift — never re-add hand-maintained status columns beside them.
@@ -72,7 +73,9 @@ Things living *outside* the vault will NOT auto-update when vault files move. An
 ## 5. Automated enforcement (not dependent on the user's discipline)
 
 - **Closeout health check** — run a governance check at every session close: hot-path size budgets, drift greps, Completed-section buildup in Tasks.md, and a git commit.
+- **Janitor** — `Workflows/Janitor.md`, daily, **mechanical only**: archiving sweeps, index consistency, conflict detection, budget watch. Automates the janitor, never the editor — anything needing judgment is flagged, not fixed.
 - **Weekly review** — `Workflows/Weekly Review.md` includes the same sweep plus stale-dossier and index checks; it is the backstop, not the primary control.
+- **Internal audit** — `Workflows/Internal Audit.md`, monthly, sampling-based conformance audit of practice against these rules (ISO-style NC/OFI findings, prior-findings follow-up, report-only). Complements the Compliance Officer, which verifies external truth.
 - **git** — the vault is a git repo. Recovery: `git log` / `git diff` / `git checkout <commit> -- <file>`. An auto-commit plugin (e.g. obsidian-git on an interval) gives zero-discipline snapshots.
 
 ## 6. Known tool hazards

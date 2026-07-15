@@ -92,7 +92,7 @@ foreach ($k in $stubs.Keys) {
         Write-Host "[ok] $k created"
     }
 }
-foreach ($d in @("Brain\Now\Inbox", "Brain\Now\Archive", "Brain\Clients", "Brain\Projects", "Brain\Sessions")) {
+foreach ($d in @("Brain\Now\Inbox", "Brain\Now\Archive", "Brain\Clients", "Brain\People", "Brain\Projects", "Brain\Sessions")) {
     New-Item -ItemType Directory -Force -Path (Join-Path $root $d) | Out-Null
 }
 Write-Host "[ok] state folders ready"

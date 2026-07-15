@@ -28,6 +28,7 @@ Six files plus one grep, always. Everything else is reached via links, never by 
 | `Now/Inbox/` | Digest and pipeline landing zone; archive monthly to `Now/Inbox/Archive/YYYY-MM/` |
 | `Now/Archive/` | Completed task history (`Completed-YYYY.md`), moved out of Tasks.md weekly |
 | `Clients/` | One dossier per client + `_Index.md` — profile, contacts, engagements, append-only Log; `stage` frontmatter feeds the dashboard |
+| `People/` | Cross-client relationship notes — one file per person worth remembering (auditors, regulators, coordinators); append-only encounter history, linked from dossiers |
 | `Workflows/` | Full specs for recurring Claude workflows — read on trigger, not in hot path |
 | `Projects/` | Internal non-client projects (create as needed) |
 | `Decisions/` | Append-only decision log, one file per year |

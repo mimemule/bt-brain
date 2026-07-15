@@ -17,10 +17,10 @@ Read when the user says "run weekly review" (typically Friday). This is the **ba
 
    **Novelty filter** — surface a candidate only if it isn't already captured in `Playbooks/`, `Decisions/`, or `Research/`. **Human gate** — name each surviving candidate in the summary (what connected · which trigger · proposed home). Don't write the Insight/note unless the user confirms it that session. *This is a detect-and-escalate step by design — it never writes synthesis into the vault unattended.*
 6. **Governance sweep** — run the [[Governance]] checks: hot-path size budgets (§2), pointer-registry drift greps (§3), and confirm no `*-conflict` files exist in `Brain/`. Fix what you find rather than only flagging it.
-7. **Housekeeping** —
+7. **Housekeeping** (backstop for the daily [[Janitor]] — verify it ran this week via git log, then catch what it missed) —
    - move checked items older than the current week (in Tasks.md **and** dossier Open actions) into `Brain/Now/Archive/Completed-YYYY.md`
-   - monthly: archive digests to `Brain/Now/Inbox/Archive/YYYY-MM/` and Sessions files older than ~14 days to `Sessions/Archive/`
-   - when a digest moves, also move its `_Index.md` entry from **Current** to **Archived**, updating the link path
+   - sweep **all Inbox entries older than 7 days** into `Brain/Now/Inbox/Archive/YYYY-MM/` — except unprocessed captures, which are **flagged, never silently archived** ([[Capture]] aging rules); Sessions files older than ~14 days to `Sessions/Archive/`
+   - when an Inbox file moves, also move its `_Index.md` entry from **Current** to **Archived**, updating the link path
    - when a Session file archives, its `index.md` line stays put — the index is the permanent lightweight record
    - `git commit` the vault at the end of the review
 8. Output a short review summary; write flagged actions into Tasks.md only after the user confirms

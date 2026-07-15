@@ -12,6 +12,7 @@ Read when a digest lands or the user asks to process one.
 2. **Waiting On sweep** (mandatory — see below): scan the *whole digest prose* for anything owed by an external party, and reconcile it against the Waiting On table
 3. Carry new actions to their owner ([[Governance]] §1) — see **Carry rules** below. Every actionable line lands *somewhere*; nothing is left only in the digest file.
 4. **End-of-digest reconciliation** (mandatory — see below): report the tally to the user across all three buckets before declaring the digest processed
+5. **Encounter capture (optional, after reconciliation):** list the meetings and notable interactions since the previous digest (from calendar + digest content) and offer the user one-line feedback per person — "anything worth remembering about how that went?" Append each response as a dated entry to `Brain/People/<person>.md` (create from `Templates/Person Template.md` on first encounter; link the client dossier both ways). Experience is value — but this step is skippable and never blocks digest completion.
 
 ## Waiting On sweep (step 2 — do not skip)
 The failure mode this guards against: a dependency written in prose — "still awaiting the last two deliverables before the certificate can be reissued" — gets dismissed with "already tracked in dossier, no new open action needed", never becomes a Waiting On row, and is forgotten.

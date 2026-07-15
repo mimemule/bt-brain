@@ -21,6 +21,7 @@ paths:
   "Brain/Decisions":                scaffold
   "Brain/Now":                      state
   "Brain/Clients":                  state
+  "Brain/People":                   state
   "Brain/Projects":                 state
   "Brain/Sessions":                 state
 # scaffold note: Brain/<Name>.md is generated at install from

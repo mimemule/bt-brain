@@ -34,7 +34,7 @@ The hot path is only cheap if its members stay small. Budgets (bytes on disk):
 |---|---|---|
 | `<Name>.md` (profile) | 3 KB | Move detail to the owning dossier/project doc; keep the pointer |
 | `Firm.md` | 4 KB | Same |
-| `Instructions.md` | 5 KB | Move procedure bodies to `Workflows/`; keep one trigger line |
+| `Instructions.md` | 5.5 KB | Move procedure bodies to `Workflows/`; keep one trigger line |
 | `Standing_Instructions.md` | 4 KB | Consolidate; safeguards should be principles, not case law |
 | `Now/Tasks.md` | 8 KB | Move Completed to `Now/Archive/`; compress long task notes into the dossier and link |
 | Latest `Sessions/` file | 6 KB | Fine to exceed on a heavy day; archive per weekly review |
@@ -75,7 +75,7 @@ Things living *outside* the vault will NOT auto-update when vault files move. An
 - **Closeout health check** — run a governance check at every session close: hot-path size budgets, drift greps, Completed-section buildup in Tasks.md, and a git commit.
 - **Janitor** — `Workflows/Janitor.md`, daily, **mechanical only**: archiving sweeps, index consistency, conflict detection, budget watch. Automates the janitor, never the editor — anything needing judgment is flagged, not fixed.
 - **Weekly review** — `Workflows/Weekly Review.md` includes the same sweep plus stale-dossier and index checks; it is the backstop, not the primary control.
-- **Internal audit** — `Workflows/Internal Audit.md`, monthly, sampling-based conformance audit of practice against these rules (ISO-style NC/OFI findings, prior-findings follow-up, report-only). Complements the Compliance Officer, which verifies external truth.
+- **Internal audit** — `Workflows/Internal Audit.md`, monthly, sampling-based conformance audit of practice against these rules (ISO-style NC/OFI findings, prior-findings follow-up, report-only). Complements the Compliance Officer, which verifies external truth. Also appends the monthly **R-effectiveness KPI scorecard** row to `Brain/Metrics/<year>.md` (definitions + guardrails in the workflow; collection is read-only over measured fields; Janitor step 7 is the external heartbeat for silent run failures).
 - **git** — the vault is a git repo. Recovery: `git log` / `git diff` / `git checkout <commit> -- <file>`. An auto-commit plugin (e.g. obsidian-git on an interval) gives zero-discipline snapshots.
 
 ## 6. Known tool hazards

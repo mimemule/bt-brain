@@ -35,6 +35,7 @@ Six files plus one grep, always. Everything else is reached via links, never by 
 | `Playbooks/` | How the team runs engagement types — checklists + accumulated Insights |
 | `Research/` | Durable, reusable research findings + `_Index.md` classifying them — **do not re-research; cite, never restate** |
 | `Products/` | Service-line / domain reference facts + `_Index.md` with provenance-tag rules — skills read facts here, procedure stays in `Playbooks/` |
+| `Metrics/` | R-effectiveness scorecard — append-only monthly KPI rows (`<year>.md`, written by Internal Audit) + `Corrections.md` event log (written at session closeout). Data only; definitions live in `Workflows/Internal Audit.md` |
 | `Templates/` | Note templates: client, meeting, project, tool, user profile |
 | `Sessions/` | Session handoff notes + permanent `index.md`; keep ~14 days, archive older |
 

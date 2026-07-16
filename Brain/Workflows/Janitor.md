@@ -12,6 +12,7 @@ The vault's daily maintenance route. **The Janitor automates the janitor, never 
 4. **Session archiving** — `Sessions/` files older than ~14 days → `Sessions/Archive/` (their `index.md` lines stay put).
 5. **Index consistency** — any Inbox file missing its `_Index.md` line → add the line; any past-week Session file missing an `index.md` line → **flag** (writing it needs content judgment; that's Weekly Review's job).
 6. **Budget watch** — measure hot-path file sizes against [[Governance]] §2; report breaches, **never trim content**.
+7. **Enforcement heartbeat** — mechanical existence checks on the other controls' artifacts (the external detector for silent run failures — a run cannot report its own absence): after the 1st, this month's `Now/Inbox/* Compliance Check.md` exists; after the 15th, this month's `* Internal Audit.md` exists; after the 16th, this month's row exists in `Brain/Metrics/<year>.md`. Any missing artifact → **flag in the report** (this is one of the "needs the user's eyes" triggers). Check, never create — writing those artifacts is the owning workflow's job.
 
 ## Reporting
 

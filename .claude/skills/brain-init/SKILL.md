@@ -99,7 +99,10 @@ Ask only what the crawl couldn't answer, as confirmations where possible
 who's missing?"). Cover:
 1. Client list — confirm/correct candidates; current stage per client
 2. Role and responsibilities
-3. Working style + preferences for Claude (tone, asking vs acting)
+3. Working style + preferences for Claude (tone, asking vs acting) — including
+   their **AI fluency** (`fluent` / `developing` / `new`), which sets how much
+   Claude unpacks difficult concepts by default. Ask plainly ("How much do you
+   already work with AI tools day to day?"); when unsure, default `developing`.
 4. Availability constraints (leave, recurring commitments)
 
 A few grouped questions, not a form. Their answers override crawl inferences.
@@ -107,7 +110,8 @@ A few grouped questions, not a form. Their answers override crawl inferences.
 ## Phase 5 — Propose
 
 Draft, and show BEFORE writing:
-- `Brain/<Name>.md` — profile filled from interview (template already exists)
+- `Brain/<Name>.md` — profile filled from interview (template already exists;
+  set the **AI Fluency** field from their answer, default `developing` if unsure)
 - `Brain/Firm.md` — starter firm/team context as THEY relate to it
 - One dossier per confirmed client from `Brain/Templates/Client Template.md`,
   with `stage` frontmatter set and an opening Log entry citing the evidence

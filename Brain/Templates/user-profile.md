@@ -30,6 +30,16 @@ dossiers with [[wikilinks]] rather than restating their content. -->
 commitments, days out of office. Remove entries when they lapse. -->
 -
 
+## AI Fluency
+<!-- How much fluency you have with AI tools — controls how much Claude unpacks
+difficult concepts by default. Set one value:
+  fluent     — keep output dense and direct; don't pre-simplify
+  developing — apply the Plain-Language Protocol by default (gloss terms,
+               analogies, layered detail)
+  new        — same as developing, and check understanding as it goes
+You can also just say "simpler" any time, whatever this is set to. -->
+- fluency: developing
+
 ## Preferences
 <!-- Hard rules for Claude. Examples: no emojis; ask before sending anything
 external; always show sources for factual claims. -->

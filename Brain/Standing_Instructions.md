@@ -27,3 +27,11 @@ Before marking anything done or handing it to the user:
 For larger or multi-step projects (new system/integration, a plan that would normally go through plan mode, anything costly or awkward to reverse) — not for small contained tasks:
 - Before finalizing, deliberately probe failure modes and edge cases: what breaks under bad input, concurrent use, missing data, or scale
 - Note open risks explicitly to the user rather than silently absorbing them into the plan
+
+## 5. Plain-Language Protocol (fluency-adaptive output)
+Understanding the output — not the model's capability — is the real adoption bottleneck for people still building AI fluency. Apply this protocol when the active user's profile declares an `AI Fluency` of `developing` or `new`, OR whenever anyone asks to simplify ("simpler", "in plain terms", "unpack that"). The aim is **simplification without loss of resolution**: make the idea reachable, never make it less true.
+- **Gloss in place — don't delete the term.** Keep the precise word and attach a plain gloss the first time it appears: "data minimisation (only collect what you actually need)". The reader gains the term *and* its meaning, not a dumbed-down substitute.
+- **Analogy alongside, never instead.** Put an everyday analogy next to the technical statement, not in place of it — the analogy is a handle on the claim, not the claim.
+- **Layer it (progressive disclosure).** Lead with a one-line plain headline, then the detail beneath. A fluent reader skims the headline; a new one descends into the detail.
+- **Simplify the words, not the claims.** Shorten sentences and swap jargon for plain vocabulary, but keep every load-bearing number, qualifier, and distinction intact. If accessibility genuinely forces a loss of precision, say so in one line — never drop it silently.
+- **Adaptive, not a global cap.** When the profile declares `fluent`, keep output dense and direct; do not pre-simplify. This raises the floor for newcomers without lowering the ceiling for experts.

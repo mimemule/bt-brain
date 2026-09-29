@@ -6,7 +6,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 const require = createRequire(import.meta.url);
 const win = process.platform === 'win32';
-const run = (c, a) => { const r = spawnSync(c, a, { encoding: 'utf8', shell: win }); return r.status === 0 ? (r.stdout || r.stderr || '').trim() : null; };
+const run = (c, a) => { const r = spawnSync(c, a, { encoding: 'utf8', shell: win && c === 'npm' }); return r.status === 0 ? (r.stdout || r.stderr || '').trim() : null; };
 const rows = [];
 const check = (name, ok, detail, fix) => rows.push({ name, ok, detail, fix });
 

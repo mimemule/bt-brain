@@ -28,7 +28,7 @@ Author: **Bryan Tan** · MIT licensed.
 ```
 <vault-root>/                  ← the git clone IS the Obsidian vault
 ├── .brain/                    ← manifest + install/update scripts
-├── .claude/skills/            ← Claude Code skills, incl. brain-init onboarding
+├── .claude/skills/            ← Claude Code skills, incl. brain-init onboarding and motion-studio (code-rendered video)
 └── Brain/
     ├── README.md              ← hot path: what a session reads at start
     ├── Instructions.md        ← behavioural rules

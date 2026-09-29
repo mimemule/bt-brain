@@ -81,7 +81,7 @@ if (Test-Path $profile) {
 # --- scaffold: empty slots + state dirs (never overwrite) ---
 $year = (Get-Date).Year
 $stubs = @{
-    "Brain\Firm.md"              = "# Firm`n`nFirm/team context as YOU need it. Yours to fill.`n"
+    "Brain\Firm.md"              = "# Firm`n`nFirm/team context as YOU need it. Yours to fill.`n`n## Brand kit`n`n<!-- Used by the motion-studio skill: fonts, colours (hex), logo and asset locations. -->`n"
     "Brain\Decisions\$year.md"   = "---`nyear: $year`n---`n`n# Decisions - $year`n`nAppend-only. Newest first.`n"
 }
 foreach ($k in $stubs.Keys) {
@@ -92,7 +92,7 @@ foreach ($k in $stubs.Keys) {
         Write-Host "[ok] $k created"
     }
 }
-foreach ($d in @("Brain\Now\Inbox", "Brain\Now\Archive", "Brain\Clients", "Brain\People", "Brain\Projects", "Brain\Sessions")) {
+foreach ($d in @("Brain\Now\Inbox", "Brain\Now\Archive", "Brain\Clients", "Brain\People", "Brain\Projects", "Brain\Sessions", "Renders")) {
     New-Item -ItemType Directory -Force -Path (Join-Path $root $d) | Out-Null
 }
 Write-Host "[ok] state folders ready"

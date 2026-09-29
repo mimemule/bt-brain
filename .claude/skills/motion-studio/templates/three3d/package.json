@@ -1,0 +1,8 @@
+{
+  "name": "motion-studio-three3d-scene",
+  "private": true,
+  "description": "three.js is installed on demand (npm install) and never committed.",
+  "dependencies": {
+    "three": "0.169.0"
+  }
+}

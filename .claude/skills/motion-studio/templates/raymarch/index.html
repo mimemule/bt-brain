@@ -1,0 +1,85 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>motion-studio: raymarch scene</title>
+<style>html,body{margin:0;background:#000}canvas{display:block;width:100vw;height:auto}</style></head>
+<body><canvas id="c"></canvas>
+<script>
+// =====================================================================================
+// motion-studio raymarch template - reflective hero objects and seamless loops, pure WebGL2.
+// Render with: node render.mjs video index.html out.mp4 --gl   (SwiftShader: ~3-7 s per 1080p frame)
+// Seamless loop: the scene is driven by PHASE in [0,1); every motion uses whole turns of PHASE.
+// Built-in fixes (see Brain/Research/Motion Graphics Pipeline.md):
+//  - BG is given in sRGB and converted to linear, and pure-background pixels bypass tone mapping,
+//    so the output matches a web page's background colour to the 8-bit value.
+//  - The bounding-volume early-out returns a *safe distance*, never skipping thin geometry.
+// =====================================================================================
+const Q = new URLSearchParams(location.search);
+const W = +(Q.get('w') || 1920), H = +(Q.get('h') || 1080), FPS = 24, LOOP_SECONDS = 12;
+const BG_SRGB = Q.get('bg') || 'F5F0E5';          // page colour to blend into (hex, no #)
+const METAL = [0.92, 0.66, 0.24];                  // base colour of the metal (linear-ish)
+const cv = document.getElementById('c'); cv.width = W; cv.height = H;
+const g = cv.getContext('webgl2', { preserveDrawingBuffer: true, antialias: false });
+const toLin = h => [0, 2, 4].map(i => Math.pow(parseInt(h.substr(i, 2), 16) / 255, 2.2));
+const fs = `#version 300 es
+precision highp float; out vec4 o;
+uniform vec2 R; uniform float PH; uniform vec3 BG, METAL; uniform mat3 ROT;
+float band(vec3 p, float r, float h, float th){ vec2 d = abs(vec2(length(p.xz)-r, p.y)) - vec2(th, h); return length(max(d,0.)) + min(max(d.x,d.y),0.) - .004; }
+mat3 rx(float a){ float c=cos(a), s=sin(a); return mat3(1,0,0, 0,c,s, 0,-s,c); }
+const float FLOOR = -1.3;
+// ---- SCENE: edit here. returns (distance, material) - 1 floor, 2 metal, 3 dark gloss
+vec2 map(vec3 p){
+  vec2 d = vec2(p.y - FLOOR, 1.);
+  float stand = max(length(p.xz) - .05, max(-(p.y + 1.3), p.y + .9));   // pole from the base (y=-1.3) up to the rings stand = min(stand, max(length(p.xz) - .45, abs(p.y + 1.27) - .03) - .01);
+  if (stand < d.x) d = vec2(stand, 2.);
+  float bound = length(p) - 1.1;
+  if (bound > .2) return vec2(min(d.x, bound), d.y);              // SAFE early-out: never return d alone
+  vec3 q = ROT * p;
+  for (int i = 0; i < 3; i++) { vec3 r = rx(float(i) * 1.0472 + .4) * q; r.xz = mat2(cos(float(i)), -sin(float(i)), sin(float(i)), cos(float(i))) * r.xz;
+    float k = band(r, .95 - float(i) * .08, .04, .012); if (k < d.x) d = vec2(k, 2.); }
+  float core = length(q) - .32; if (core < d.x) d = vec2(core, 3.);
+  return d;
+}
+vec3 nrm(vec3 p){ vec2 e = vec2(.0006,0.); return normalize(vec3(map(p+e.xyy).x-map(p-e.xyy).x, map(p+e.yxy).x-map(p-e.yxy).x, map(p+e.yyx).x-map(p-e.yyx).x)); }
+vec2 march(vec3 ro, vec3 rd, float tmax){ float t = .002; for (int i = 0; i < 140; i++){ vec2 h = map(ro+rd*t); if (h.x < .0003*t + .0002) return vec2(t,h.y); t += h.x*.9; if (t > tmax) break; } return vec2(-1.,0.); }
+float shadow(vec3 ro, vec3 rd){ float r = 1., t = .015; for (int i = 0; i < 48; i++){ float h = map(ro+rd*t).x; r = min(r, 14.*h/t); t += clamp(h,.012,.2); if (r < .002 || t > 5.) break; } return clamp(r,0.,1.); }
+float ao(vec3 p, vec3 n){ float a = 0., s = 1.; for (int i = 1; i <= 4; i++){ float h = .04*float(i); a += (h - map(p+n*h).x)*s; s *= .65; } return clamp(1.-2.2*a,0.,1.); }
+const vec3 KEY = normalize(vec3(-.55,.85,-.35));
+vec3 env(vec3 rd){ // dark studio walls give metals contrast; softboxes give the highlights
+  vec3 c = mix(vec3(.10,.085,.07), vec3(.42,.38,.33), clamp(rd.y*.7+.45,0.,1.)); c = mix(c, BG*.9, smoothstep(-.05,-.5,rd.y));
+  c += vec3(1.,.95,.86)*smoothstep(.90,.96,dot(rd,normalize(vec3(-.6,.7,-.4))))*4.0;
+  c += vec3(.95,.9,.85)*smoothstep(.93,.98,dot(rd,normalize(vec3(.8,.35,.5))))*2.2; return c; }
+vec3 metal(vec3 n, vec3 rd){ vec3 r = reflect(rd,n); float f = .6 + .4*pow(1.-max(dot(n,-rd),0.),5.); return env(r)*METAL*f*1.05 + METAL*max(dot(n,KEY),0.)*.12; }
+vec3 render(vec3 ro, vec3 rd, out bool bg){
+  vec2 h = march(ro, rd, 16.); bg = h.x < 0.; if (bg) return BG;
+  vec3 p = ro + rd*h.x, n = nrm(p), col;
+  if (h.y < 1.5) { float sh = shadow(p + n*.003, KEY), oc = ao(p, n); col = BG * (.80 + .20*sh) * (.78 + .22*oc); }
+  else if (h.y < 2.5) { col = metal(n, rd); vec3 r = reflect(rd,n); vec2 h2 = march(p + n*.004, r, 4.);
+    if (h2.x > 0.) { vec3 p2 = p + n*.004 + r*h2.x; col = mix(col, (h2.y < 1.5 ? BG*.8 : metal(nrm(p2), r)) * METAL * 1.1, .5); }
+    col *= (.55 + .45*shadow(p + n*.003, KEY)) * (.7 + .3*ao(p, n)); }
+  else { vec3 r = reflect(rd,n); col = vec3(.06,.06,.08)*(.3+.7*max(dot(n,KEY),0.)) + env(r)*(.04+.96*pow(1.-max(dot(n,-rd),0.),5.))*.6; }
+  float fog = smoothstep(7.5, 13., h.x); return mix(col, BG, fog);
+}
+void main(){
+  vec2 uv = (gl_FragCoord.xy - .5*R)/R.y; float sway = .06*sin(6.2831853*PH);
+  vec3 ro = vec3(5.6*sin(.7+sway), .9, -5.6*cos(.7+sway)), ta = vec3(0.,-.4,0.);
+  vec3 f = normalize(ta-ro), r = normalize(cross(vec3(0,1,0),f)), u = cross(f,r), rd = normalize(uv.x*r + uv.y*u + 2.0*f);
+  bool bg; vec3 col = render(ro, rd, bg);
+  if (bg || all(lessThan(abs(col - BG), vec3(1e-5)))) { o = vec4(pow(BG, vec3(1./2.2)), 1.); return; }  // exact page colour
+  vec3 tm = col*(1.+col/4.)/(1.+col); tm = mix(col, tm, smoothstep(.0,.25,length(col-BG)));
+  o = vec4(pow(clamp(tm,0.,1.), vec3(1./2.2)), 1.);
+}`;
+const sh = (t, s) => { const x = g.createShader(t); g.shaderSource(x, s); g.compileShader(x); if (!g.getShaderParameter(x, g.COMPILE_STATUS)) throw new Error(g.getShaderInfoLog(x)); return x; };
+const pr = g.createProgram(); g.attachShader(pr, sh(g.VERTEX_SHADER, `#version 300 es\nin vec2 p; void main(){ gl_Position = vec4(p,0.,1.); }`)); g.attachShader(pr, sh(g.FRAGMENT_SHADER, fs)); g.linkProgram(pr); g.useProgram(pr);
+g.bindBuffer(g.ARRAY_BUFFER, g.createBuffer()); g.bufferData(g.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), g.STATIC_DRAW);
+const loc = g.getAttribLocation(pr, 'p'); g.enableVertexAttribArray(loc); g.vertexAttribPointer(loc, 2, g.FLOAT, false, 0, 0);
+const U = n => g.getUniformLocation(pr, n);
+const rotY = a => [Math.cos(a), 0, -Math.sin(a), 0, 1, 0, Math.sin(a), 0, Math.cos(a)]; // column-major
+const FRAMES = LOOP_SECONDS * FPS;
+window.META = { fps: FPS, frames: FRAMES };
+window.grab = f => {
+  const ph = (f % FRAMES) / FRAMES;             // frame FRAMES == frame 0 -> seamless
+  g.viewport(0, 0, W, H); g.uniform2f(U('R'), W, H); g.uniform1f(U('PH'), ph);
+  g.uniform3fv(U('BG'), toLin(BG_SRGB)); g.uniform3fv(U('METAL'), METAL); g.uniformMatrix3fv(U('ROT'), false, rotY(ph * Math.PI * 2));
+  g.drawArrays(g.TRIANGLES, 0, 3); g.finish(); return cv.toDataURL('image/png');
+};
+window.ready = true;
+</script></body></html>

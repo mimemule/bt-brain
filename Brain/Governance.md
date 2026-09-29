@@ -56,6 +56,7 @@ Things living *outside* the vault will NOT auto-update when vault files move. An
 |---|---|---|
 | Global Claude standing instructions | `~/.claude/CLAUDE.md` | hot-path pointer, `Brain/Clients/` |
 | Each Claude Code skill that touches the vault | `.claude/skills/<skill>/SKILL.md` | whatever paths it reads/writes |
+| `motion-studio` skill | `.claude/skills/motion-studio/SKILL.md` | reads `Brain/Firm.md` (`## Brand kit`), `Brain/Products/`, `Brain/Research/Motion Graphics Pipeline.md`; writes renders to `Renders/` |
 | Scheduled tasks / cloud routines | wherever they're defined | the files they write into `Brain/Now/Inbox/` |
 | Engine repo + distribution camera | the engine remote + its ignore/whitelist rules | every §7 engine path |
 | Obsidian MCP plugin config | `.obsidian/` (vault root binding) | vault root path itself |

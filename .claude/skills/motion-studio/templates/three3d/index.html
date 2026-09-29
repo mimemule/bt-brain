@@ -1,0 +1,112 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>motion-studio: three3d scene</title>
+<style>html,body{margin:0;background:#000}canvas{display:block;width:100vw;height:auto}</style>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+</head><body><canvas id="out"></canvas>
+<script type="module">
+// =====================================================================================
+// motion-studio three3d template - real-time 3D: PBR materials, shadows, bloom, keyframed figures,
+// camera shots, slow-motion time remap, hit sparks. Demo: a figure strikes a hanging target.
+// Setup: npm install (in this folder). Render: node render.mjs video index.html out.mp4 --gl --jobs 2
+// Preview: node render.mjs stills index.html stills 0 30 60 --gl --q "w=960&h=540&sub=1"
+// =====================================================================================
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { buildFigure, animate, worldPos, solveContacts, EASE } from './rig.js';
+
+const Q = new URLSearchParams(location.search);
+const W = +(Q.get('w') || 1920), H = +(Q.get('h') || 1080), SUB = +(Q.get('sub') || 3), FPS = 24, DUR = 6;
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x)), lerp = (a, b, t) => a + (b - a) * t;
+const hash = n => { const s = Math.sin(n * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); };
+const noise = x => { const i = Math.floor(x), f = x - i, u = f * f * (3 - 2 * f); return lerp(hash(i), hash(i + 1), u) * 2 - 1; };
+
+// ---------- renderer + look ----------
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H, false); renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x06070b); scene.fog = new THREE.FogExp2(0x06070b, .07);
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), .04).texture; scene.environmentIntensity = .35;
+const camera = new THREE.PerspectiveCamera(38, W / H, .05, 80);
+const composer = new EffectComposer(renderer); composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), .5, .45, .92)); // threshold .9+: keeps white materials from blowing out
+composer.addPass(new OutputPass());
+const floor = new THREE.Mesh(new THREE.CircleGeometry(30, 96), new THREE.MeshStandardMaterial({ color: 0x0b0d12, roughness: .32, metalness: .55 }));
+floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+const ringM = new THREE.Mesh(new THREE.TorusGeometry(3.5, .02, 8, 160), new THREE.MeshBasicMaterial({ color: 0xffd9a8 })); ringM.rotation.x = Math.PI / 2; ringM.position.y = .02; scene.add(ringM);
+scene.add(new THREE.HemisphereLight(0x33405a, 0x080808, .5));
+const key = new THREE.SpotLight(0xfff1dc, 240, 30, .6, .45, 1.6); key.position.set(1.5, 9, 4); key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -.0004; scene.add(key, key.target);
+const rim = new THREE.PointLight(0x3cc8ff, 16, 12, 1.6); rim.position.set(3.5, 2.2, -2); scene.add(rim);
+
+// ---------- cast ----------
+const fig = buildFigure(scene, {
+  armor: new THREE.MeshPhysicalMaterial({ color: 0x2b2f36, metalness: .75, roughness: .32, clearcoat: .6 }),
+  under: new THREE.MeshStandardMaterial({ color: 0x121417, metalness: .6, roughness: .5 }),
+  glow: new THREE.MeshStandardMaterial({ color: 0, emissive: 0xff5a1f, emissiveIntensity: 3.2 }) });
+const pad = new THREE.Mesh(new THREE.CapsuleGeometry(.16, .5, 6, 16), new THREE.MeshPhysicalMaterial({ color: 0x9aa3ae, roughness: .4, clearcoat: 1 })); pad.castShadow = true; scene.add(pad);
+const PAD_X = .95;
+function padAt(t) { const hitT = 3.0, sw = t > hitT ? Math.sin((t - hitT) * 6) * Math.exp(-(t - hitT) * 2.2) * .5 : 0; pad.position.set(PAD_X + Math.sin(sw) * .6, 1.55 - (1 - Math.cos(sw)) * .6, 0); pad.rotation.z = -sw; }
+
+// ---------- poses (degrees) ----------
+const guard = { y: -.07, hips: [0, -30, 0], spine: [8, 8, 0], chest: [4, 8, 0], head: [-4, 16, 0], lSh: [-55, 0, 22], lEl: [-118, 0, 0], rSh: [-38, 0, -28], rEl: [-132, 0, 0],
+  lHip: [-26, 0, 4], lKn: [30, 0, 0], lAn: [-4, 0, 0], rHip: [20, 0, -6], rKn: [26, 0, 0], rAn: [-30, 0, 0] };
+const load = { ...guard, y: -.14, hips: [0, -48, 0], chest: [8, -12, 0], rSh: [-20, 0, -40], rEl: [-120, 0, 0], lKn: [42, 0, 0], rKn: [40, 0, 0] };
+const cross = { ...guard, hips: [0, 14, 0], spine: [12, 10, 0], chest: [4, 20, 0], head: [-6, -20, 0], rSh: [-112, 0, -2], rEl: [-5, 0, 0], rHip: [26, 0, -4], rKn: [18, 0, 0], rAn: [-55, 0, 0], lKn: [36, 0, 0] };
+const POSE = [[0, guard], [1.2, guard], [2.4, load, 'io'], [2.62, guard, 'io'], [3.0, cross, 'snap'], [3.4, cross], [4.2, guard, 'io'], [DUR, guard]];
+const ROOT = [[0, { x: -1.6 }], [2.4, { x: -.9 }, 'io'], [3.0, { x: -.8 }, 'snap'], [4.2, { x: -1.0 }, 'io'], [DUR, { x: -1.0 }]];
+const HEADING = 90; // faces +x
+
+// ---------- slow motion around the hit: [actionStart, actionEnd, speed] ----------
+const SLOW = [[2.85, 3.35, .25]], RAMP = .12;
+const speed = a => SLOW.reduce((s, [a0, a1, v]) => Math.min(s, lerp(1, v, Math.min(clamp((a - (a0 - RAMP)) / RAMP), clamp((a1 + RAMP - a) / RAMP)))), 1);
+const TAB = [[0, 0]]; { let a = 0, t = 0; while (t < DUR + .5) { t += .0005 / speed(a); a += .0005; TAB.push([t, a]); } }
+const actionAt = t => { let lo = 0, hi = TAB.length - 1; while (hi - lo > 1) { const m = (lo + hi) >> 1; TAB[m][0] <= t ? lo = m : hi = m; } return TAB[lo][1]; };
+const videoAt = a => TAB[Math.min(TAB.length - 1, Math.round(a / .0005))][0];
+const ACTION_END = actionAt(DUR);
+
+// ---------- contact ----------
+const corrections = new Map([[fig, []]]);
+const poseAt = a => { animate(fig, POSE, ROOT, HEADING, a, corrections.get(fig)); padAt(a); };
+const HITS = [{ t: 3.0, fig, effector: 'rHand', target: () => new THREE.Vector3(PAD_X - .16, 1.55, 0), strength: 1 }];
+window.contactReport = solveContacts(HITS, poseAt, corrections);    // check miss_m < .1 and dy near 0
+const HITPOS = HITS.map(h => { poseAt(h.t); return worldPos(h.fig, h.effector); });
+
+// ---------- sparks ----------
+const N = 70, sp = new Float32Array(HITS.length * N * 6), sc = new Float32Array(HITS.length * N * 6), sg = new THREE.BufferGeometry();
+sg.setAttribute('position', new THREE.BufferAttribute(sp, 3)); sg.setAttribute('color', new THREE.BufferAttribute(sc, 3));
+scene.add(new THREE.LineSegments(sg, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })));
+function sparks(a) { HITS.forEach((h, k) => { const dt = a - h.t; for (let i = 0; i < N; i++) { const o = (k * N + i) * 6, live = dt >= 0 && dt < .55, d = Math.max(0, dt);
+  const th = hash(k * 1e3 + i) * 6.283, ph = (hash(k * 1e3 + i + 500) - .5) * 3.1, v = (1.2 + hash(i * 3) * 3.5) * h.strength, dir = [Math.cos(ph) * Math.cos(th), Math.sin(ph) * .8 + .25, Math.cos(ph) * Math.sin(th)];
+  const p = HITPOS[k], x = p.x + dir[0] * v * d, y = p.y + dir[1] * v * d - 4.5 * d * d, z = p.z + dir[2] * v * d, c = live ? Math.pow(1 - d / .55, 1.5) * 4 : 0;
+  sp.set([x, y, z, x - dir[0] * .02 * v, y - (dir[1] - 9 * d) * .015, z - dir[2] * .02 * v], o); sc.set([c, .6 * c, .3 * c, .2 * c, .12 * c, .06 * c], o); } });
+  sg.attributes.position.needsUpdate = sg.attributes.color.needsUpdate = true; }
+
+// ---------- camera shots (video time) ----------
+function cameraAt(tv) {
+  const fx = fig.position.x, mid = (fx + PAD_X) / 2; let pos, look, fov = 38;
+  if (tv < 2.2) { const u = EASE.io(tv / 2.2); const th = lerp(-.9, -.5, u); pos = [Math.sin(th) * 6.5, lerp(2.4, 1.6, u), Math.cos(th) * 6.5]; look = [0, 1.0, 0]; }
+  else if (tv < videoAt(3.5)) { const u = (tv - 2.2) / (videoAt(3.5) - 2.2); pos = [mid + lerp(.4, 1.2, u), .7, lerp(2.8, 2.4, u)]; look = [mid, 1.3, 0]; fov = lerp(40, 32, EASE.io(u)); }
+  else { const u = clamp((tv - videoAt(3.5)) / (DUR - videoAt(3.5))); pos = [fx - 1.6, .6, lerp(2.6, 2.9, u)]; look = [fx + .9, 1.2, 0]; fov = 36; }
+  let sx = 0, sy = 0; HITS.forEach(h => { const d = tv - videoAt(h.t); if (d >= 0 && d < .5) { const k = h.strength * .04 * Math.exp(-d * 9); sx += noise(d * 40) * k; sy += noise(d * 40 + 9) * k; } });
+  camera.position.set(pos[0] + sx, pos[1] + sy, pos[2]); camera.fov = fov; camera.updateProjectionMatrix(); camera.lookAt(...look);
+}
+
+// ---------- render loop: motion blur + letterbox ----------
+const out = document.getElementById('out'); out.width = W; out.height = H; const octx = out.getContext('2d');
+const acc = document.createElement('canvas'); acc.width = W; acc.height = H; const actx = acc.getContext('2d');
+function renderAt(tv) { const a = Math.min(actionAt(tv), ACTION_END); poseAt(a); sparks(a); cameraAt(tv); composer.render(); }
+window.META = { fps: FPS, frames: DUR * FPS };
+window.grab = f => {
+  const t0 = f / FPS;
+  for (let s = 0; s < SUB; s++) { renderAt(clamp(t0 + (s / SUB - .5) * .5 / FPS, 0, DUR - .001)); actx.globalAlpha = 1 / (s + 1); actx.drawImage(renderer.domElement, 0, 0); }
+  actx.globalAlpha = 1; octx.drawImage(acc, 0, 0);
+  const fade = Math.min(clamp(t0 / .5), clamp((DUR - t0) / .6)); octx.fillStyle = `rgba(0,0,0,${1 - fade})`; octx.fillRect(0, 0, W, H);
+  const bar = Math.round((H - W / 2.39) / 2); octx.fillStyle = '#000'; octx.fillRect(0, 0, W, bar); octx.fillRect(0, H - bar, W, bar);
+  return out.toDataURL('image/jpeg', .93);
+};
+window.cues = () => ({ duration: DUR, hits: HITS.map(h => [videoAt(h.t), h.strength]), slow: SLOW.map(([a0, a1]) => [videoAt(a0), videoAt(a1)]) });
+window.ready = true;
+</script></body></html>

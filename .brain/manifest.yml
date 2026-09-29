@@ -24,5 +24,6 @@ paths:
   "Brain/People":                   state
   "Brain/Projects":                 state
   "Brain/Sessions":                 state
+  "Renders":                        state
 # scaffold note: Brain/<Name>.md is generated at install from
 # Brain/Templates/user-profile.md and is state thereafter.

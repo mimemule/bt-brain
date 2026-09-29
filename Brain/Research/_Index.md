@@ -19,6 +19,7 @@ When a project produces a reusable finding, it goes **here** and the project not
 
 | Domain | File | Covers | Last verified |
 |---|---|---|---|
+| Motion graphics / code-driven video | [[Motion Graphics Pipeline]] | Render speeds without a GPU, colour-matching, ray-march and rig traps, audio balance, limits (used by `motion-studio`) | 2026-09-29 |
 | *(add rows as findings accumulate)* | | | |
 
 ## Staleness
